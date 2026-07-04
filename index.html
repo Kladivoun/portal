@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="cs" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kefův portál</title>
+
+<!-- Google Fonts: Grenze Gotisch (wordmark/popisky) + Inter (UI) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  /* === TÉMA / CSS PROMĚNNÉ ================================== */
+  :root {
+    /* Denní režim (světlý) — varianta „7c" */
+    --bg: oklch(96% 0.008 265);
+    --glow: radial-gradient(circle at 30% 0%, oklch(90% 0.02 285 / .7), transparent 60%);
+    --tile-border: oklch(88% 0.008 265);
+    --tile-bg: #ffffff;
+    --pill-bg: #ffffff;
+    --pill-border: transparent;
+    --pill-shadow: 0 1px 3px rgba(0,0,0,.1);
+    --ui-text: oklch(30% 0.01 265);
+    --accent: oklch(75% 0.14 55);           /* teplá oranžová */
+    --logo-ring: oklch(88% 0.008 265);
+  }
+  html[data-theme="dark"] {
+    /* Noční režim (tmavý) — varianta „7a" */
+    --bg: oklch(15% 0.008 265);
+    --glow: radial-gradient(circle at 30% 0%, oklch(22% 0.02 280 / .6), transparent 60%);
+    --tile-border: oklch(30% 0.01 265);
+    --tile-bg: oklch(18% 0.008 265);
+    --pill-bg: oklch(22% 0.012 265);
+    --pill-border: oklch(32% 0.01 265);
+    --pill-shadow: none;
+    --ui-text: oklch(85% 0.01 265);
+    --accent: oklch(75% 0.14 55);
+    --logo-ring: oklch(30% 0.01 265);
+  }
+
+  /* === ZÁKLAD ============================================== */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    background-image: var(--glow);
+    color: var(--ui-text);
+    min-height: 100vh;
+    transition: background-color .25s ease, color .25s ease;
+  }
+
+  /* === OBSAHOVÝ BLOK ====================================== */
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 38px 44px;
+  }
+
+  /* === HLAVIČKA =========================================== */
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 34px;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+  .logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 1px var(--logo-ring), 0 2px 6px rgba(0,0,0,.18);
+  }
+
+  /* Wordmark „Kefův portál" */
+  .wordmark {
+    margin: 0;
+    font-family: 'Grenze Gotisch', serif;
+    font-weight: 900;
+    font-size: 38px;
+    line-height: .9;
+    letter-spacing: .01em;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+  /* Denní: tmavý kov */
+  html[data-theme="light"] .wordmark {
+    background-image: linear-gradient(180deg,#5b636e 0%,#2b2f35 46%,#14171b 56%,#565d67 78%);
+    -webkit-text-stroke: .8px oklch(20% 0.01 265);
+    filter: drop-shadow(0 1px 0 rgba(255,255,255,.7));
+  }
+  /* Noční: chrom */
+  html[data-theme="dark"] .wordmark {
+    background-image: linear-gradient(180deg,#ffffff 0%,#dfe3e8 38%,#8b9199 54%,#f2f4f7 68%,#aeb4bd 100%);
+    -webkit-text-stroke: 1px oklch(25% 0.01 265);
+    filter: drop-shadow(0 2px 1px rgba(0,0,0,.5));
+  }
+
+  /* === PŘEPÍNAČ REŽIMU (pill, hybrid Auto→Den→Noc) ======== */
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 5px 14px 5px 5px;
+    border-radius: 999px;
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    box-shadow: var(--pill-shadow);
+    color: var(--ui-text);
+    font: inherit;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+    transition: background-color .2s ease, border-color .2s ease;
+  }
+  .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .theme-toggle .toggle-ico {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    box-shadow: 0 0 0 2px var(--accent);   /* prstenec aktivního stavu */
+    background: #000;
+  }
+  .theme-toggle .toggle-label {
+    font-size: .9rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    line-height: 1;
+  }
+  .theme-toggle .toggle-hint {
+    font-size: .8rem;
+    font-weight: 400;
+    opacity: .7;
+    margin-left: -4px;
+  }
+
+  /* === MŘÍŽKA DLAŽDIC ===================================== */
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .tile {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--tile-border);
+    background: var(--tile-bg);
+    text-decoration: none;
+    display: block;
+    transition: transform .16s ease, box-shadow .16s ease;
+  }
+  .tile:hover,
+  .tile:focus-visible {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0,0,0,.22);
+    outline: none;
+  }
+  .tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .tile .caption {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 15px 10px 9px;
+    background: linear-gradient(transparent, rgba(255,255,255,.92) 78%);
+    font-family: 'Grenze Gotisch', serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: .02em;
+    color: #181818;
+    text-align: center;
+  }
+
+  /* === ZÁPATÍ ============================================= */
+  .app-footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: .8rem;
+    opacity: .6;
+  }
+
+  /* === RESPONZIVITA ====================================== */
+  @media (max-width: 640px) {
+    .wrap { padding: 26px 20px; }
+    .app-header { margin-bottom: 26px; }
+    .wordmark { font-size: 28px; }
+    .logo { width: 52px; height: 52px; border-radius: 13px; }
+    .tiles { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .tile .caption { font-size: 19px; }
+  }
+  @media (max-width: 360px) {
+    .wordmark { font-size: 24px; }
+    .theme-toggle .toggle-label,
+    .theme-toggle .toggle-hint { display: none; }
+    .theme-toggle { padding: 5px; gap: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="app-header">
+    <div class="brand">
+      <img class="logo" src="IMG/Portal_skull_666.jpg" alt="Logo Kefova portálu">
+      <h1 class="wordmark">Kefův portál</h1>
+    </div>
+
+    <button
+      class="theme-toggle"
+      id="themeToggle"
+      type="button"
+      data-mode="auto"
+      aria-label="Přepnout režim zobrazení (Auto → Den → Noc)"
+      aria-pressed="false"
+      title="Klikni pro přepnutí režimu (Auto → Den → Noc)"
+    >
+      <img class="toggle-ico" id="toggleIco" src="IMG/Prepinac_auto_666.png" alt="">
+      <span class="toggle-label" id="toggleLabel">Auto</span>
+      <span class="toggle-hint" id="toggleHint">(den)</span>
+    </button>
+  </header>
+
+  <nav class="tiles" id="tiles" aria-label="Sekce portálu"></nav>
+
+  <footer class="app-footer">
+    (c) 2026 KeCl v1.1
+  </footer>
+
+</div>
+
+<script>
+  /* === KONFIGURACE DLAŽDIC ================================
+     Přidání/úprava sekce = uprav toto pole.
+       name  – popisek na dlaždici
+       url   – cílový odkaz
+       img   – cesta k obrázku dlaždice (složka IMG/)               */
+  const SECTIONS = [
+    { name: "Hry",        url: "https://kefa-hry.lovable.app/",           img: "IMG/Hry_skull_white_666.png" },
+    { name: "Knihy",      url: "https://kladivoun.github.io/ctenar/",     img: "IMG/Knihy_skull_white_666.png" },
+    { name: "Koncerty",   url: "https://kladivoun.github.io/koncerty/",   img: "IMG/Koncerty_skull_white_666.png" },
+    { name: "Předplatná", url: "https://kladivoun.github.io/predplatna/", img: "IMG/Predplatna_skull_white_666.png" },
+  ];
+
+  (function renderTiles() {
+    const wrap = document.getElementById('tiles');
+    SECTIONS.forEach(s => {
+      const a = document.createElement('a');
+      a.className = 'tile';
+      a.href = s.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.setAttribute('aria-label', s.name);
+
+      const img = document.createElement('img');
+      img.src = s.img;
+      img.alt = s.name;
+      img.loading = 'lazy';
+
+      const cap = document.createElement('span');
+      cap.className = 'caption';
+      cap.textContent = s.name;
+
+      a.appendChild(img);
+      a.appendChild(cap);
+      wrap.appendChild(a);
+    });
+  })();
+
+  /* === PŘEPÍNAČ REŽIMU (hybrid) ===========================
+     Jedno tlačítko cykluje: Auto → Den → Noc → Auto.
+     - Auto:  téma podle denní doby (den 6:00–18:59, noc 19:00–5:59),
+              ikona = lebka slunce+měsíc v rámu.
+     - Den:   vynuceně světlé, ikona slunce.
+     - Noc:   vynuceně tmavé, ikona měsíc.
+     Volba se ukládá do localStorage a obnovuje při načtení.        */
+  (function() {
+    const html    = document.documentElement;
+    const btn     = document.getElementById('themeToggle');
+    const icoEl   = document.getElementById('toggleIco');
+    const labelEl = document.getElementById('toggleLabel');
+    const hintEl  = document.getElementById('toggleHint');
+
+    const KEY   = 'portal-theme-mode';
+    const ORDER = ['auto', 'day', 'night'];
+    const ICONS = {
+      auto:  'IMG/Prepinac_auto_666.png',
+      day:   'IMG/Prepinac_Skull_sun_666.png',
+      night: 'IMG/Prepinac_Skull_moon_666.png',
+    };
+
+    let mode = localStorage.getItem(KEY);
+    if (!ORDER.includes(mode)) mode = 'auto';
+
+    function isDayNow() {
+      const h = new Date().getHours();
+      return h >= 6 && h < 19;
+    }
+
+    function render() {
+      btn.dataset.mode = mode;
+      if (mode === 'auto') {
+        const day = isDayNow();
+        html.setAttribute('data-theme', day ? 'light' : 'dark');
+        icoEl.src = ICONS.auto;
+        labelEl.textContent = 'Auto';
+        hintEl.textContent  = day ? '(den)' : '(noc)';
+        hintEl.style.display = '';
+        btn.setAttribute('aria-pressed', 'false');
+      } else if (mode === 'day') {
+        html.setAttribute('data-theme', 'light');
+        icoEl.src = ICONS.day;
+        labelEl.textContent = 'Den';
+        hintEl.style.display = 'none';
+        btn.setAttribute('aria-pressed', 'true');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        icoEl.src = ICONS.night;
+        labelEl.textContent = 'Noc';
+        hintEl.style.display = 'none';
+        btn.setAttribute('aria-pressed', 'true');
+      }
+    }
+
+    btn.addEventListener('click', () => {
+      mode = ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length];
+      localStorage.setItem(KEY, mode);
+      render();
+    });
+
+    render();
+    // V Auto režimu přepočítej téma každou minutu (přechod den/noc u otevřené stránky).
+    setInterval(() => { if (mode === 'auto') render(); }, 60000);
+  })();
+</script>
+
+</body>
+</html>
