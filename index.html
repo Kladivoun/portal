@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kefův portál</title>
 
+<!-- Favicon (ikona v záložce prohlížeče) -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="IMG/favicon.png?v=1.4">
+<link rel="apple-touch-icon" href="IMG/favicon.png?v=1.4">
+
 <!-- Google Fonts: Grenze Gotisch (wordmark/popisky) + Inter (UI) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -157,6 +162,12 @@
     box-shadow: 0 10px 24px rgba(0,0,0,.22);
     outline: none;
   }
+  /* Delší popisek na jeden řádek — menší písmo (např. „Knowledge base") */
+  .tile .caption.caption--sm { font-size: 30px; }
+  /* Dlaždice zatím bez cílového URL — nezvedá se, výchozí kurzor */
+  .tile--soon { cursor: default; }
+  .tile--soon:hover,
+  .tile--soon:focus-visible { transform: none; box-shadow: none; }
   .tile img {
     width: 100%;
     height: 100%;
@@ -193,6 +204,7 @@
     .brand { gap: 16px; }
     .tiles { grid-template-columns: repeat(2, 1fr); gap: 14px; }
     .tile .caption { font-size: 26px; padding: 16px 14px 11px; }
+    .tile .caption.caption--sm { font-size: 20px; }
     .theme-toggle .toggle-ico { width: 40px; height: 40px; }
   }
   @media (max-width: 360px) {
@@ -226,7 +238,7 @@
   <nav class="tiles" id="tiles" aria-label="Sekce portálu"></nav>
 
   <footer class="app-footer">
-    (c) 2026 KeCl v1.3
+    (c) 2026 KeCl v1.7
   </footer>
 
 </div>
@@ -238,11 +250,13 @@
        url   – cílový odkaz
        img   – cesta k obrázku dlaždice (složka IMG/)               */
   const SECTIONS = [
-    { name: "Hry",        url: "https://kefa-hry.lovable.app/",           img: "IMG/Hry_skull_white_666.png" },
-    { name: "Knihy",      url: "https://kladivoun.github.io/ctenar/",     img: "IMG/Knihy_skull_white_666.png" },
-    { name: "Koncerty",   url: "https://kladivoun.github.io/koncerty/",   img: "IMG/Koncerty_skull_white_666.png" },
-    { name: "Předplatná", url: "https://kladivoun.github.io/predplatna/", img: "IMG/Predplatna_skull_white_666.png" },
-    { name: "To-do",      url: "https://kladivoun.github.io/todo/",       img: "IMG/Todo_skull_light_666.png" },
+    { name: "Hry",            url: "https://kefa-hry.lovable.app/",           img: "IMG/Hry_skull_white_666.png" },
+    { name: "Knihy",          url: "https://kladivoun.github.io/ctenar/",     img: "IMG/Knihy_skull_white_666.png" },
+    { name: "Koncerty",       url: "https://kladivoun.github.io/koncerty/",   img: "IMG/Koncerty_skull_white_666.png" },
+    { name: "Předplatná",     url: "https://kladivoun.github.io/predplatna/", img: "IMG/Predplatna_skull_white_666.png" },
+    { name: "Platby",         url: "",                                        img: "IMG/Platby_skull_666_white.png" },
+    { name: "To-do",          url: "https://kladivoun.github.io/todo/",       img: "IMG/Todo_skull_light_666.png" },
+    { name: "Knowledge base", url: "",                                        img: "IMG/Knowledge_skull_666.avif", smallCap: true },
   ];
 
   (function renderTiles() {
@@ -250,9 +264,14 @@
     SECTIONS.forEach(s => {
       const a = document.createElement('a');
       a.className = 'tile';
-      a.href = s.url;
-      a.target = '_blank';
-      a.rel = 'noopener';
+      if (s.url) {
+        a.href = s.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+      } else {
+        a.classList.add('tile--soon');   // zatím bez cílového URL
+        a.setAttribute('aria-disabled', 'true');
+      }
       a.setAttribute('aria-label', s.name);
 
       const img = document.createElement('img');
@@ -261,7 +280,7 @@
       img.loading = 'lazy';
 
       const cap = document.createElement('span');
-      cap.className = 'caption';
+      cap.className = 'caption' + (s.smallCap ? ' caption--sm' : '');
       cap.textContent = s.name;
 
       a.appendChild(img);
